@@ -1,0 +1,107 @@
+# Enhanced Calculator App
+
+import re
+
+def calculate_expression(expression):
+    """Calculate mathematical expressions safely"""
+    try:
+        # Remove spaces
+        expression = expression.replace(" ", "")
+        
+        # Basic validation - only allow numbers, operators, parentheses, and decimal points
+        if not re.match(r'^[0-9+\-*/().^√]+$', expression):
+            return "Error: Invalid characters in expression!"
+        
+        # Replace ^ with ** for power operations
+        expression = expression.replace("^", "**")
+        
+        # Handle square root (√)
+        while "√" in expression:
+            # Find √number pattern
+            match = re.search(r'√(\d+(?:\.\d+)?)', expression)
+            if match:
+                number = float(match.group(1))
+                if number < 0:
+                    return "Error: Cannot calculate square root of negative number!"
+                sqrt_result = number ** 0.5
+                expression = expression.replace(match.group(0), str(sqrt_result))
+            else:
+                break
+        
+        # Safely evaluate the expression
+        result = eval(expression)
+        return result
+        
+    except ZeroDivisionError:
+        return "Error: Cannot divide by zero!"
+    except Exception as e:
+        return f"Error: Invalid expression!"
+
+def display_help():
+    print("\n" + "="*50)
+    print("              CALCULATOR HELP")
+    print("="*50)
+    print("Supported operations:")
+    print("  Addition:       5 + 3")
+    print("  Subtraction:    10 - 4")
+    print("  Multiplication: 6 * 7")
+    print("  Division:       15 / 3")
+    print("  Power:          2 ^ 3  or  2 ** 3")
+    print("  Square Root:    √16")
+    print("  Parentheses:    (5 + 3) * 2")
+    print("  Decimals:       3.14 + 2.86")
+    print("\nSpecial commands:")
+    print("  'help' - Show this help")
+    print("  'clear' - Clear screen")
+    print("  'exit' or 'quit' - Exit calculator")
+    print("="*50)
+
+def clear_screen():
+    print("\n" * 50)
+
+def main():
+    print("🧮 Enhanced Calculator App")
+    print("Type mathematical expressions directly!")
+    print("Example: 5+3, 10*2, √16, 2^3")
+    print("Type 'help' for more examples or 'exit' to quit")
+    print("="*50)
+    
+    while True:
+        try:
+            user_input = input("\n📝 Enter calculation: ").strip()
+            
+            if not user_input:
+                continue
+                
+            # Convert to lowercase for command checking
+            command = user_input.lower()
+            
+            if command in ['exit', 'quit', 'q']:
+                print("👋 Thank you for using the calculator! Goodbye!")
+                break
+            elif command == 'help':
+                display_help()
+                continue
+            elif command == 'clear':
+                clear_screen()
+                continue
+            
+            # Calculate the expression
+            result = calculate_expression(user_input)
+            
+            if isinstance(result, str) and result.startswith("Error"):
+                print(f"❌ {result}")
+            else:
+                # Format the result nicely
+                if isinstance(result, float) and result.is_integer():
+                    result = int(result)
+                print(f"✅ {user_input} = {result}")
+                
+        except KeyboardInterrupt:
+            print("\n👋 Calculator closed. Goodbye!")
+            break
+        except Exception as e:
+            print(f"❌ Unexpected error: {e}")
+
+if __name__ == "__main__":
+    main()
